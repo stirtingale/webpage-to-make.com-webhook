@@ -1,324 +1,189 @@
-# Save to Webhook - Chrome Extension
+# Save to Make.com Webhook - Chrome Extension
 
-A powerful Chrome extension that instantly saves webpage content via multiple named webhooks. Save entire pages, selected text, or links with a simple right-click or toolbar button to any configured webhook endpoint.
+A Chrome extension that saves webpage content directly to Make.com webhooks. Designed for marketing teams, researchers, and content creators who need to quickly capture and organize web content into automated Make.com workflows.
 
-## ✨ Features
+## Why Use This Extension?
 
-- **🖱️ Smart right-click menus** - Save content instantly with webhook selection
-- **🎯 Multiple webhook support** - Configure multiple named webhooks for different purposes
-- **📝 Multiple save modes** - Full page, selected text, or links
-- **⚙️ Management interface** - Easy webhook configuration via extension options page
-- **🔄 Cross-device sync** - Settings sync across all your Chrome browsers
-- **💾 Persistent storage** - Remembers your settings between sessions
-- **✅ Visual feedback** - Clean notifications show save status with webhook names
-- **🛡️ Secure** - All data goes directly to your webhook endpoints
+![Extension Screenshot](screenshot.jpg)
 
-## 🚀 Quick Start
+Modern marketing and research workflows require capturing content from across the web - competitor analysis, trend research, content inspiration, and lead intelligence. This extension bridges the gap between manual content discovery and automated processing with Make.com.
 
-### 1. Install Chrome Extension (1 minute)
+By connecting directly to [Make.com](https://www.make.com/en/register?pc=stirtingale) webhooks, you can instantly route captured content into your existing tools: CRM systems, content calendars, team collaboration platforms, and knowledge bases. Instead of copy-pasting into spreadsheets or taking screenshots, content flows directly into your Make.com scenarios with rich metadata preserved.
 
-1. Download/clone this repository
+**Marketing Team Workflow Example:**
+A marketing manager researching competitors can right-click competitor blog posts → route to "Competitor Analysis" Make.com webhook → automatically populate Google Sheets with content, images, and metadata → trigger Slack notifications to the team → create tasks in project management tools.
+
+## Features
+
+- **Multiple Make.com webhook support** - Configure different Make.com endpoints for different workflows
+- **Right-click context menus** - Save content directly from any webpage to Make.com
+- **Three save modes** - Full page, selected text, or links sent to Make.com
+- **Rich metadata extraction** - Includes Open Graph images and metadata for Make.com processing
+- **Management interface** - Easy Make.com webhook configuration
+- **Cross-device sync** - Settings sync across Chrome browsers
+
+## Installation
+
+1. Download this repository
 2. Open Chrome → `chrome://extensions/`
-3. Enable **Developer mode** (toggle in top-right)
+3. Enable **Developer mode** (top-right toggle)
 4. Click **Load unpacked** → select the extension folder
-5. Pin the extension to your toolbar (optional)
+5. Configure webhooks via the options page
 
-### 2. Configure Webhooks (2 minutes)
+## Configuration
 
-1. Right-click on any webpage → "Configure webhooks..."
-2. OR click extension icon → "Setup Webhooks"
-3. OR go to `chrome://extensions/` → Click "Details" on the extension → "Extension options"
+### Adding Make.com Webhooks
 
-**Add your first webhook:**
+Access Make.com webhook management via:
 
-- **Name**: "My Webhook" (or any descriptive name)
-- **URL**: Your webhook endpoint URL
-- Click "Add Webhook"
+- Right-click any webpage → "Configure webhooks..."
+- Click extension icon → "Setup Webhooks"
+- Chrome extensions page → Extension details → "Extension options"
 
-### 3. Start Saving! (instant)
+Add Make.com webhooks with a descriptive name and URL:
 
-**Right-click method** (recommended):
+- **Name**: "Research Notes"
+- **URL**: `https://hook.us1.make.com/abc123...`
 
-- Right-click any webpage → Choose from your configured webhooks
-- Select text first → Right-click → Choose webhook for selected text
-- Right-click any link → Choose webhook to save the link
+### Make.com Integration
 
-**Popup method**:
+[Make.com](https://www.make.com/en/register?pc=stirtingale) is a visual automation platform that connects apps and services without coding. It's particularly powerful for marketing workflows because it can:
 
-- Click extension icon → Select webhook → Choose save type
+- **Route content intelligently** - Send competitor content to one Make.com scenario, industry news to another
+- **Enrich data automatically** - Add sentiment analysis, keyword extraction, or content summarization in Make.com
+- **Trigger multi-step workflows** - Save content → Make.com processes → notify team → create calendar events → update CRM
+- **Connect to 1000+ apps** - Integrate with Slack, HubSpot, Notion, Airtable, and more through Make.com
 
-## 📖 How to Use
+#### Make.com Setup Instructions
 
-### Right-Click Context Menus (Recommended)
+1. **Create free account** at [Make.com](https://www.make.com/en/register?pc=stirtingale)
+2. **Create new scenario** in your Make.com dashboard
+3. **Add Webhooks module** → "Custom webhook" in Make.com
+4. **Copy the Make.com webhook URL**
+5. **Add your next step** (Google Sheets, Slack, etc.) in Make.com
+6. **Map webhook data** to your chosen app in Make.com
+7. **Activate the Make.com scenario**
 
-The extension creates smart context menus based on your configured webhooks:
+#### Make.com + Google Sheets Example
 
-#### Single Webhook
+1. Add **Google Sheets** → "Add a row" after the webhook in Make.com
+2. **Map fields** in Make.com:
+   - Column A: `timestamp`
+   - Column B: `url`
+   - Column C: `title`
+   - Column D: `text`
+   - Column E: `webhook_name`
+   - Column F: `meta.og_image`
+3. **Test and activate** your Make.com scenario
 
-- Simple menu options: "Save page to [Webhook Name]"
-- "Save selected text to [Webhook Name]" (when text is selected)
-- "Save link to [Webhook Name]" (when right-clicking links)
+## Usage
 
-#### Multiple Webhooks
+### Right-Click Context Menus
 
-- **Save page to...** → Submenu with all your webhooks
-- **Save selected text to...** → Submenu with all your webhooks (when text selected)
-- **Save link to...** → Submenu with all your webhooks (when right-clicking links)
+![Context Menu](menu.jpg)
 
-#### No Webhooks Configured
+- **Single Make.com webhook**: Direct menu items ("Save page to Research Notes")
+- **Multiple Make.com webhooks**: Submenus organized by action type
+- **No webhooks**: "Configure webhooks..." option to set up Make.com integration
 
-- **Configure webhooks...** → Opens the management page
+### Popup Interface
 
-### Toolbar Popup (Alternative Method)
+1. Click extension icon
+2. Select Make.com webhook from dropdown
+3. Choose "Save Page" or "Save Selected"
 
-1. **Click the extension icon** in your toolbar
-2. **Select a webhook** from the dropdown (auto-selected if only one)
-3. **Choose your action**:
-   - **Save Page** - Saves entire page content
-   - **Save Selected** - Saves currently selected text (if any)
-
-## 📊 Data Format
-
-The extension sends this JSON data structure to your webhook:
+## Data Format
 
 ```json
 {
   "timestamp": "2025-09-24T10:30:00.000Z",
   "url": "https://example.com/article",
   "title": "Article Title",
-  "text": "The saved content text...",
-  "type": "selected_text|full_page|link",
+  "text": "Content text...",
+  "type": "full_page|selected_text|link",
   "method": "context_menu|popup",
-  "webhook_name": "My Webhook"
+  "webhook_name": "Research Notes",
+  "meta": {
+    "og_image": "https://example.com/image.jpg",
+    "og_title": "Article Title",
+    "og_description": "Article description",
+    "og_site_name": "Site Name",
+    "favicon": "https://example.com/favicon.ico"
+  }
 }
 ```
 
-## 🔧 Installation
+## Marketing & Business Use Cases with Make.com
 
-### File Structure
+### Competitive Intelligence
 
-Create a folder with these files:
+- **Monitor competitor content** - Save competitor blog posts, product pages, and campaigns to Make.com for analysis
+- **Track pricing changes** - Capture product pages with images, route to Make.com for price monitoring workflows
+- **Campaign analysis** - Save ad creatives and landing pages, process through Make.com for creative inspiration databases
+
+### Content Strategy
+
+- **Trend research** - Route trending content through Make.com to research folders organized by topic
+- **Content curation** - Collect industry articles with metadata, use Make.com to compile newsletters automatically
+- **Social media scheduling** - Save posts with og:image, process through Make.com for cross-platform sharing
+
+### Lead Generation & Sales
+
+- **Prospect research** - Save company information, route through Make.com to CRM systems
+- **Industry intelligence** - Track news about prospects, use Make.com to trigger sales team notifications
+- **Event monitoring** - Capture conference speakers and attendee information, process through Make.com lead workflows
+
+### Team Collaboration
+
+- **Client research** - Route client-related findings through Make.com to dedicated team channels
+- **Project resources** - Organize research by project using named Make.com webhooks
+- **Knowledge management** - Build searchable databases through Make.com automation
+
+### Advanced Make.com Workflow Examples
+
+**Multi-step Marketing Workflow:**
+
+1. Save competitor article → [Make.com](https://www.make.com/en/register?pc=stirtingale) webhook
+2. **Make.com OpenAI module** - Extract key insights and sentiment
+3. **Make.com Google Sheets** - Log with analysis in competitor tracking sheet
+4. **Make.com Slack integration** - Alert marketing team with summary
+5. **Make.com Asana connector** - Create follow-up task if significant threat detected
+
+**Content Calendar Automation:**
+
+1. Save trending article → Make.com webhook
+2. **Make.com content analysis** - Identify trending topics and keywords
+3. **Make.com Airtable integration** - Add to content ideas with priority scoring
+4. **Make.com calendar sync** - Schedule content creation tasks
+5. **Make.com team notifications** - Alert content creators of new opportunities
+
+_Note: While this extension is optimized for Make.com workflows, it can technically work with any webhook endpoint that accepts JSON POST requests._
+
+## File Structure
 
 ```
 save-to-webhook/
 ├── manifest.json      # Extension configuration
-├── background.js      # Context menu handler and webhook management
-├── popup.html         # Extension popup interface
-├── popup.js          # Popup functionality
+├── background.js      # Context menus and webhook management
+├── popup.html         # Popup interface
+├── popup.js          # Popup logic
 ├── options.html      # Webhook management page
-├── options.js        # Webhook management logic
-├── content.js        # Content script (minimal)
-├── icon16.png        # 16x16 icon (optional)
-├── icon48.png        # 48x48 icon (optional)
-└── icon128.png       # 128x128 icon (optional)
+├── options.js        # Webhook CRUD operations
+├── content.js        # Content script
+└── icons/            # Extension icons (optional)
 ```
 
-### Required Files
+## Permissions
 
-1. **manifest.json** - Extension configuration and permissions
-2. **background.js** - Handles context menus, webhook storage, and script execution
-3. **popup.html** - User interface for the toolbar popup
-4. **popup.js** - Logic for the popup interface
-5. **options.html** - Webhook management page interface
-6. **options.js** - Logic for webhook CRUD operations
-7. **content.js** - Minimal content script (required by manifest)
+- `activeTab` - Access current tab content
+- `storage` - Save webhook configurations
+- `contextMenus` - Add right-click options
+- `scripting` - Inject content extraction scripts
 
-### Optional Files
+## Browser Compatibility
 
-- **Icons** (16px, 48px, 128px PNG files) - For a professional appearance
-- Without icons, Chrome shows a default puzzle piece icon
+Chrome extensions using Manifest V3. Requires Chrome 88+.
 
-### Creating Icons
+## License
 
-**Quick method**: Use [favicon.io](https://favicon.io/emoji-favicons/) with the 🔗 emoji to generate all required sizes.
-
-## ⚙️ Configuration
-
-### Webhook URL Storage
-
-- **Location**: Chrome's built-in `chrome.storage.sync`
-- **Persistence**: Survives browser restarts and extension updates
-- **Sync**: Automatically syncs across devices signed into the same Chrome account
-- **Security**: Only accessible by this extension, encrypted by Chrome
-- **Privacy**: Stored locally, never sent to third parties
-
-### Settings Management
-
-- **Auto-save**: Webhook URL is saved automatically when entered
-- **Auto-load**: Previously saved URL loads when extension opens
-- **Validation**: Extension checks for webhook URL before attempting saves
-
-## 🛠️ Advanced Usage
-
-### Webhook Integration Ideas
-
-Your webhook endpoint can process the data in various ways:
-
-#### Data Storage
-
-- **Database storage** - Save to MySQL, PostgreSQL, MongoDB
-- **File systems** - Write to text files, JSON, CSV
-- **Cloud storage** - AWS S3, Google Cloud Storage
-- **Document systems** - Save to Notion, Airtable, spreadsheets
-
-#### Data Processing
-
-- **Text analysis** - Sentiment analysis, keyword extraction
-- **Content summarization** - Generate abstracts or summaries
-- **Language detection** - Identify and translate content
-- **Duplicate detection** - Check for previously saved content
-
-#### Notifications & Actions
-
-- **Email alerts** - Send notifications about saved content
-- **Chat integrations** - Post to Slack, Discord, Teams
-- **RSS feeds** - Generate feeds from saved content
-- **API forwarding** - Send data to other services
-
-#### Smart Routing
-
-- **Domain-based routing** - Different handling for different websites
-- **Content-based filtering** - Route based on keywords or content type
-- **Time-based processing** - Handle work vs personal saves differently
-
-### Error Handling
-
-The extension includes robust error handling:
-
-- **Network errors** - Shows retry-friendly error messages
-- **Invalid webhook** - Prompts user to check URL
-- **Server downtime** - Graceful failure with clear messaging
-- **Missing permissions** - Guides user to grant required permissions
-
-### Browser Permissions
-
-The extension requests minimal permissions:
-
-- **activeTab** - Access current tab content for saving
-- **storage** - Save webhook URL persistently
-- **contextMenus** - Add right-click menu options
-
-No browsing history, personal data, or cross-site access required.
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-#### Nothing happens when clicking context menu
-
-- **Check webhook URL** - Ensure it's correctly entered in the popup
-- **Verify webhook endpoint** - Confirm it's accepting POST requests
-- **Test webhook** - Send a test request to verify it's working
-
-#### "Error saving" notification
-
-- **Invalid webhook URL** - Double-check the URL format
-- **Server errors** - Check your webhook server logs
-- **Network connectivity** - Ensure internet connection is stable
-
-#### Context menus don't appear
-
-- **Extension not loaded** - Check chrome://extensions/ for errors
-- **Permissions denied** - Try disabling and re-enabling the extension
-- **Page compatibility** - Some pages block extension scripts
-
-#### Webhook URL not saving
-
-- **Storage permissions** - Ensure extension has storage permission
-- **Chrome sync issues** - Try signing out and back into Chrome
-- **Extension updates** - Reload the extension after code changes
-
-### Debug Mode
-
-To debug issues:
-
-1. **Open extension popup** → Right-click → Inspect
-2. **Check console** for JavaScript errors
-3. **Test webhook** directly with tools like Postman or curl
-4. **Monitor webhook server logs** for incoming requests
-
-### Performance Tips
-
-- **Limit text length** - Extension automatically limits to 10,000 characters
-- **Use selected text** for large pages to save only what you need
-- **Optimize webhook response time** for better user experience
-
-## 🔒 Security & Privacy
-
-### Data Handling
-
-- **Direct transmission** - Content goes directly from browser to your webhook
-- **No intermediary storage** - Extension doesn't store content locally
-- **Encrypted transport** - All requests use HTTPS (if your webhook uses HTTPS)
-- **User control** - You choose what content to save
-
-### Permissions Explained
-
-- **activeTab** - Only accesses the current tab when you trigger a save
-- **storage** - Only stores the webhook URL, no content or personal data
-- **contextMenus** - Only adds menu items, doesn't access menu data from other extensions
-
-### Webhook Integration
-
-- **Your endpoint** - All data goes to your designated webhook URL
-- **Your processing** - You control how the data is handled and stored
-- **Your security** - Implement authentication/validation as needed
-
-## 🤝 Contributing
-
-Contributions welcome! Areas for improvement:
-
-- **UI enhancements** - Better popup design, dark mode support
-- **Content detection** - Smarter main content extraction algorithms
-- **Export formats** - Support for Markdown, PDF, or other formats
-- **Batch operations** - Save multiple tabs at once
-- **Keyboard shortcuts** - Hotkeys for common actions
-- **Advanced filtering** - Regex patterns for content processing
-
-### Development Setup
-
-1. Clone repository
-2. Make changes to source files
-3. Go to `chrome://extensions/` → Click refresh button on extension
-4. Test changes on various websites
-
-### Code Style
-
-- **ES6+ JavaScript** - Modern syntax and features
-- **Minimal dependencies** - Uses only Chrome APIs and vanilla JS
-- **Clean separation** - Background, content, and popup scripts clearly separated
-- **Error handling** - Comprehensive try/catch and user feedback
-
-## 📋 Changelog
-
-### v1.0.0 (Current)
-
-- Initial release
-- Right-click context menus for text, pages, and links
-- Toolbar popup interface
-- Webhook integration
-- Chrome storage sync for settings
-- Visual feedback notifications
-- Smart content detection
-
-### Planned Features
-
-- **Keyboard shortcuts** (Ctrl/Cmd + S for quick save)
-- **Batch save** multiple tabs
-- **Content categories** with dropdown selection
-- **Export/import** settings
-- **Usage statistics** and save history
-
-## 📄 License
-
-MIT License - Feel free to modify and distribute
-
-## 🆘 Support
-
-- **Issues**: Create an issue in this repository
-- **Webhook setup**: Consult your webhook service documentation
-- **Chrome extensions**: See [Chrome Developer Documentation](https://developer.chrome.com/docs/extensions/)
-
----
-
-**Made with ❤️ for productivity enthusiasts who want to quickly capture web content via webhooks**
+MIT License
