@@ -1,66 +1,147 @@
-// Load saved webhook URL
+// Load webhooks and setup UI on page load
 document.addEventListener('DOMContentLoaded', async () => {
-  const result = await chrome.storage.sync.get(['webhookUrl']);
-  if (result.webhookUrl) {
-    document.getElementById('webhook-url').value = result.webhookUrl;
-  }
+  await loadWebhooks();
+  setupEventListeners();
 });
 
-// Save webhook URL when changed
-document.getElementById('webhook-url').addEventListener('change', async (e) => {
-  await chrome.storage.sync.set({ webhookUrl: e.target.value });
-});
+// Event listeners
+function setupEventListeners() {
+  // Webhook selection change
+  document.getElementById('webhook-select').addEventListener('change', (e) => {
+    const hasSelection = e.target.value !== '';
+    document.getElementById('save-page').disabled = !hasSelection;
+    document.getElementById('save-selected').disabled = !hasSelection;
+  });
 
-// Save entire page
-document.getElementById('save-page').addEventListener('click', async () => {
-  const webhookUrl = document.getElementById('webhook-url').value;
-  
-  if (!webhookUrl) {
-    showStatus('Please enter your Make.com webhook URL first', 'error');
-    return;
-  }
+  // Save entire page
+  document.getElementById('save-page').addEventListener('click', async () => {
+    const webhookInfo = getSelectedWebhook();
+    if (!webhookInfo) return;
 
-  await saveWebhookUrl();
-  await executeContentScript('savePage', webhookUrl);
-});
+    await executeContentScript('savePage', webhookInfo.url, webhookInfo.name);
+  });
 
-// Save selected text
-document.getElementById('save-selected').addEventListener('click', async () => {
-  const webhookUrl = document.getElementById('webhook-url').value;
-  
-  if (!webhookUrl) {
-    showStatus('Please enter your Make.com webhook URL first', 'error');
-    return;
-  }
+  // Save selected text
+  document.getElementById('save-selected').addEventListener('click', async () => {
+    const webhookInfo = getSelectedWebhook();
+    if (!webhookInfo) return;
 
-  await saveWebhookUrl();
-  await executeContentScript('saveSelected', webhookUrl);
-});
+    await executeContentScript('saveSelected', webhookInfo.url, webhookInfo.name);
+  });
 
-async function saveWebhookUrl() {
-  const webhookUrl = document.getElementById('webhook-url').value;
-  await chrome.storage.sync.set({ webhookUrl });
+  // Manage webhooks link
+  document.getElementById('manage-webhooks').addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.runtime.openOptionsPage();
+    window.close();
+  });
+
+  // Setup webhooks button
+  document.getElementById('setup-webhooks').addEventListener('click', () => {
+    chrome.runtime.openOptionsPage();
+    window.close();
+  });
 }
 
-async function executeContentScript(action, webhookUrl) {
+async function loadWebhooks() {
+  try {
+    const result = await chrome.storage.sync.get(['webhooks']);
+    const webhooks = result.webhooks || [];
+
+    if (webhooks.length === 0) {
+      showNoWebhooks();
+      return;
+    }
+
+    showWebhookInterface();
+    populateWebhookSelect(webhooks);
+
+  } catch (error) {
+    console.error('Error loading webhooks:', error);
+    showStatus('Error loading webhooks', 'error');
+  }
+}
+
+function showNoWebhooks() {
+  document.getElementById('webhook-interface').style.display = 'none';
+  document.getElementById('no-webhooks').style.display = 'block';
+}
+
+function showWebhookInterface() {
+  document.getElementById('webhook-interface').style.display = 'block';
+  document.getElementById('no-webhooks').style.display = 'none';
+}
+
+function populateWebhookSelect(webhooks) {
+  const select = document.getElementById('webhook-select');
+
+  // Clear existing options except first
+  select.innerHTML = '<option value="">Select a webhook...</option>';
+
+  // Add webhook options
+  webhooks.forEach(webhook => {
+    const option = document.createElement('option');
+    option.value = JSON.stringify({ id: webhook.id, name: webhook.name, url: webhook.url });
+    option.textContent = webhook.name;
+    select.appendChild(option);
+  });
+
+  // Auto-select if only one webhook
+  if (webhooks.length === 1) {
+    select.selectedIndex = 1;
+    select.dispatchEvent(new Event('change'));
+  }
+}
+
+function getSelectedWebhook() {
+  const select = document.getElementById('webhook-select');
+  const selectedValue = select.value;
+
+  if (!selectedValue) {
+    showStatus('Please select a webhook first', 'error');
+    return null;
+  }
+
+  try {
+    return JSON.parse(selectedValue);
+  } catch (error) {
+    console.error('Error parsing webhook data:', error);
+    showStatus('Error with webhook selection', 'error');
+    return null;
+  }
+}
+
+async function executeContentScript(action, webhookUrl, webhookName) {
   showStatus('Saving...', 'info');
-  
+
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      function: action === 'savePage' ? savePageContent : saveSelectedContent,
-      args: [webhookUrl]
+
+    if (!tab) {
+      throw new Error('No active tab found');
+    }
+
+    // Send message to background script to handle the execution
+    const response = await chrome.runtime.sendMessage({
+      action: 'executeScript',
+      tabId: tab.id,
+      scriptAction: action,
+      webhookUrl: webhookUrl,
+      webhookName: webhookName
     });
-    
-    // The content script will handle showing success/error messages
+
+    if (response && response.success) {
+      showStatus('Request sent!', 'success');
+    } else {
+      throw new Error(response?.error || 'Unknown error');
+    }
+
     setTimeout(() => {
       window.close();
-    }, 1000);
-    
+    }, 2000);
+
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in executeContentScript:', error);
     showStatus('Error: ' + error.message, 'error');
   }
 }
@@ -70,87 +151,4 @@ function showStatus(message, type) {
   status.textContent = message;
   status.className = `status ${type}`;
   status.style.display = 'block';
-}
-
-// These functions will be injected into the page
-function savePageContent(webhookUrl) {
-  const data = {
-    timestamp: new Date().toISOString(),
-    url: window.location.href,
-    title: document.title,
-    text: document.body.innerText.trim().substring(0, 10000), // Limit to 10k chars
-    type: 'full_page'
-  };
-  
-  sendToWebhook(webhookUrl, data);
-}
-
-function saveSelectedContent(webhookUrl) {
-  const selectedText = window.getSelection().toString().trim();
-  
-  if (!selectedText) {
-    showNotification('❌ No text selected', '#ef4444');
-    return;
-  }
-  
-  const data = {
-    timestamp: new Date().toISOString(),
-    url: window.location.href,
-    title: document.title,
-    text: selectedText,
-    type: 'selected_text'
-  };
-  
-  sendToWebhook(webhookUrl, data);
-}
-
-function sendToWebhook(webhookUrl, data) {
-  // Show loading notification
-  const loader = showNotification('⏳ Saving to Google Sheets...', '#6366f1');
-  
-  fetch(webhookUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data)
-  })
-  .then(response => {
-    if (response.ok) {
-      loader.innerHTML = '✅ Saved to Google Sheets!';
-      loader.style.background = '#10b981';
-    } else {
-      throw new Error('HTTP ' + response.status);
-    }
-  })
-  .catch(error => {
-    loader.innerHTML = '❌ Error saving';
-    loader.style.background = '#ef4444';
-    console.error('Save error:', error);
-  })
-  .finally(() => {
-    setTimeout(() => loader.remove(), 3000);
-  });
-}
-
-function showNotification(message, color) {
-  const notification = document.createElement('div');
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: ${color};
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    z-index: 10000;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    max-width: 300px;
-  `;
-  notification.innerHTML = message;
-  document.body.appendChild(notification);
-  return notification;
 }

@@ -1,19 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "Send to make.com",
+  "name": "Save to Webhook",
   "version": "1.0",
-  "description": "Push the webpage text to a Make.com webhook",
+  "description": "Save webpage text to multiple webhook endpoints",
   "permissions": [
     "activeTab",
     "storage",
-    "contextMenus"
+    "contextMenus",
+    "scripting"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Push to Make.com"
+    "default_title": "Save to Webhook"
   },
   "content_scripts": [
     {
@@ -25,6 +26,7 @@
       ]
     }
   ],
+  "options_page": "options.html",
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",

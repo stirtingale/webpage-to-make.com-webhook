@@ -1,25 +1,21 @@
 # Save to Webhook - Chrome Extension
 
-A powerful Chrome extension that instantly saves webpage content via webhooks. Save entire pages, selected text, or links with a simple right-click or toolbar button to any webhook endpoint.
+A powerful Chrome extension that instantly saves webpage content via multiple named webhooks. Save entire pages, selected text, or links with a simple right-click or toolbar button to any configured webhook endpoint.
 
 ## ✨ Features
 
-- **🖱️ Right-click context menus** - Save content instantly from any webpage
-- **🎯 Smart content detection** - Automatically finds main article content
+- **🖱️ Smart right-click menus** - Save content instantly with webhook selection
+- **🎯 Multiple webhook support** - Configure multiple named webhooks for different purposes
 - **📝 Multiple save modes** - Full page, selected text, or links
-- **⚡ One-click setup** - Just enter your webhook URL once
+- **⚙️ Management interface** - Easy webhook configuration via extension options page
 - **🔄 Cross-device sync** - Settings sync across all your Chrome browsers
 - **💾 Persistent storage** - Remembers your settings between sessions
-- **✅ Visual feedback** - Clean notifications show save status
-- **🛡️ Secure** - All data goes directly to your webhook endpoint
+- **✅ Visual feedback** - Clean notifications show save status with webhook names
+- **🛡️ Secure** - All data goes directly to your webhook endpoints
 
 ## 🚀 Quick Start
 
-### 1. Set Up Your Webhook Endpoint (varies by service)
-
-Set up a webhook endpoint that accepts POST requests with JSON data. The extension will send structured data about the saved content to your endpoint.
-
-### 2. Install Chrome Extension (1 minute)
+### 1. Install Chrome Extension (1 minute)
 
 1. Download/clone this repository
 2. Open Chrome → `chrome://extensions/`
@@ -27,43 +23,59 @@ Set up a webhook endpoint that accepts POST requests with JSON data. The extensi
 4. Click **Load unpacked** → select the extension folder
 5. Pin the extension to your toolbar (optional)
 
-### 3. Configure Webhook (30 seconds)
+### 2. Configure Webhooks (2 minutes)
 
-1. Click the extension icon in your toolbar
-2. Paste your webhook URL
-3. The URL is automatically saved
+1. Right-click on any webpage → "Configure webhooks..."
+2. OR click extension icon → "Setup Webhooks"
+3. OR go to `chrome://extensions/` → Click "Details" on the extension → "Extension options"
+
+**Add your first webhook:**
+
+- **Name**: "My Webhook" (or any descriptive name)
+- **URL**: Your webhook endpoint URL
+- Click "Add Webhook"
+
+### 3. Start Saving! (instant)
+
+**Right-click method** (recommended):
+
+- Right-click any webpage → Choose from your configured webhooks
+- Select text first → Right-click → Choose webhook for selected text
+- Right-click any link → Choose webhook to save the link
+
+**Popup method**:
+
+- Click extension icon → Select webhook → Choose save type
 
 ## 📖 How to Use
 
 ### Right-Click Context Menus (Recommended)
 
-The extension adds smart context menu options that appear when you right-click:
+The extension creates smart context menus based on your configured webhooks:
 
-#### Save Selected Text
+#### Single Webhook
 
-1. **Select any text** on a webpage
-2. **Right-click** → "Save selected text to webhook"
-3. **See confirmation** notification
+- Simple menu options: "Save page to [Webhook Name]"
+- "Save selected text to [Webhook Name]" (when text is selected)
+- "Save link to [Webhook Name]" (when right-clicking links)
 
-#### Save Full Page
+#### Multiple Webhooks
 
-1. **Right-click anywhere** on a webpage
-2. Choose "Save page to webhook"
-3. **Saves main content** (tries article/main tags first, falls back to full page)
+- **Save page to...** → Submenu with all your webhooks
+- **Save selected text to...** → Submenu with all your webhooks (when text selected)
+- **Save link to...** → Submenu with all your webhooks (when right-clicking links)
 
-#### Save Links
+#### No Webhooks Configured
 
-1. **Right-click any link**
-2. Choose "Save link to webhook"
-3. **Saves the link URL** and source page info
+- **Configure webhooks...** → Opens the management page
 
 ### Toolbar Popup (Alternative Method)
 
 1. **Click the extension icon** in your toolbar
-2. **Choose your action**:
+2. **Select a webhook** from the dropdown (auto-selected if only one)
+3. **Choose your action**:
    - **Save Page** - Saves entire page content
    - **Save Selected** - Saves currently selected text (if any)
-3. **Watch for success notification**
 
 ## 📊 Data Format
 
@@ -76,7 +88,8 @@ The extension sends this JSON data structure to your webhook:
   "title": "Article Title",
   "text": "The saved content text...",
   "type": "selected_text|full_page|link",
-  "method": "context_menu|popup"
+  "method": "context_menu|popup",
+  "webhook_name": "My Webhook"
 }
 ```
 
@@ -89,9 +102,11 @@ Create a folder with these files:
 ```
 save-to-webhook/
 ├── manifest.json      # Extension configuration
-├── background.js      # Context menu handler
+├── background.js      # Context menu handler and webhook management
 ├── popup.html         # Extension popup interface
 ├── popup.js          # Popup functionality
+├── options.html      # Webhook management page
+├── options.js        # Webhook management logic
 ├── content.js        # Content script (minimal)
 ├── icon16.png        # 16x16 icon (optional)
 ├── icon48.png        # 48x48 icon (optional)
@@ -101,10 +116,12 @@ save-to-webhook/
 ### Required Files
 
 1. **manifest.json** - Extension configuration and permissions
-2. **background.js** - Handles right-click context menus and webhook calls
+2. **background.js** - Handles context menus, webhook storage, and script execution
 3. **popup.html** - User interface for the toolbar popup
-4. **popup.js** - Logic for the popup interface and settings
-5. **content.js** - Minimal content script (required by manifest)
+4. **popup.js** - Logic for the popup interface
+5. **options.html** - Webhook management page interface
+6. **options.js** - Logic for webhook CRUD operations
+7. **content.js** - Minimal content script (required by manifest)
 
 ### Optional Files
 
