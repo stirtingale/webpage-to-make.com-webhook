@@ -303,6 +303,17 @@ function executePageSave(webhookUrl, webhookName) {
     document.querySelector('#content')?.innerText ||
     document.body.innerText;
 
+  // Extract Open Graph and meta information
+  const ogImage = document.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
+    document.querySelector('meta[name="twitter:image"]')?.getAttribute('content') ||
+    document.querySelector('meta[property="twitter:image"]')?.getAttribute('content');
+
+  const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+  const ogDescription = document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+    document.querySelector('meta[name="description"]')?.getAttribute('content');
+  const ogSiteName = document.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
+  const ogType = document.querySelector('meta[property="og:type"]')?.getAttribute('content');
+
   const data = {
     timestamp: new Date().toISOString(),
     url: window.location.href,
@@ -310,7 +321,15 @@ function executePageSave(webhookUrl, webhookName) {
     text: mainContent.trim().substring(0, 10000),
     type: 'full_page',
     method: 'extension',
-    webhook_name: webhookName
+    webhook_name: webhookName,
+    meta: {
+      og_image: ogImage || null,
+      og_title: ogTitle || null,
+      og_description: ogDescription || null,
+      og_site_name: ogSiteName || null,
+      og_type: ogType || null,
+      favicon: document.querySelector('link[rel*="icon"]')?.getAttribute('href') || null
+    }
   };
 
   helpers.sendToWebhook(webhookUrl, webhookName, data, 'page');
@@ -334,6 +353,16 @@ function executeSelectedSave(webhookUrl, webhookName) {
     return;
   }
 
+  // Extract Open Graph and meta information for selected text saves too
+  const ogImage = document.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
+    document.querySelector('meta[name="twitter:image"]')?.getAttribute('content') ||
+    document.querySelector('meta[property="twitter:image"]')?.getAttribute('content');
+
+  const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+  const ogDescription = document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+    document.querySelector('meta[name="description"]')?.getAttribute('content');
+  const ogSiteName = document.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
+
   const data = {
     timestamp: new Date().toISOString(),
     url: window.location.href,
@@ -341,7 +370,14 @@ function executeSelectedSave(webhookUrl, webhookName) {
     text: selectedText,
     type: 'selected_text',
     method: 'popup',
-    webhook_name: webhookName
+    webhook_name: webhookName,
+    meta: {
+      og_image: ogImage || null,
+      og_title: ogTitle || null,
+      og_description: ogDescription || null,
+      og_site_name: ogSiteName || null,
+      favicon: document.querySelector('link[rel*="icon"]')?.getAttribute('href') || null
+    }
   };
 
   helpers.sendToWebhook(webhookUrl, webhookName, data, 'selected text');
@@ -354,6 +390,16 @@ function executeSelectedSaveWithText(webhookUrl, webhookName, selectedText) {
     return;
   }
 
+  // Extract Open Graph and meta information
+  const ogImage = document.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
+    document.querySelector('meta[name="twitter:image"]')?.getAttribute('content') ||
+    document.querySelector('meta[property="twitter:image"]')?.getAttribute('content');
+
+  const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+  const ogDescription = document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+    document.querySelector('meta[name="description"]')?.getAttribute('content');
+  const ogSiteName = document.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
+
   const data = {
     timestamp: new Date().toISOString(),
     url: window.location.href,
@@ -361,7 +407,14 @@ function executeSelectedSaveWithText(webhookUrl, webhookName, selectedText) {
     text: selectedText,
     type: 'selected_text',
     method: 'context_menu',
-    webhook_name: webhookName
+    webhook_name: webhookName,
+    meta: {
+      og_image: ogImage || null,
+      og_title: ogTitle || null,
+      og_description: ogDescription || null,
+      og_site_name: ogSiteName || null,
+      favicon: document.querySelector('link[rel*="icon"]')?.getAttribute('href') || null
+    }
   };
 
   helpers.sendToWebhook(webhookUrl, webhookName, data, 'selected text');
@@ -374,14 +427,33 @@ function executeLinkSave(webhookUrl, webhookName, linkUrl) {
     return;
   }
 
+  // For links, we get meta info from the current page (where the link was found)
+  const ogImage = document.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
+    document.querySelector('meta[name="twitter:image"]')?.getAttribute('content') ||
+    document.querySelector('meta[property="twitter:image"]')?.getAttribute('content');
+
+  const ogSiteName = document.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
+
+  // Try to get link text or surrounding context
+  const linkElement = document.querySelector(`a[href="${linkUrl}"]`);
+  const linkText = linkElement ? linkElement.textContent.trim() : '';
+
   const data = {
     timestamp: new Date().toISOString(),
     url: linkUrl,
     title: `Link from: ${document.title}`,
-    text: `Link saved from: ${window.location.href}`,
+    text: linkText || `Link saved from: ${window.location.href}`,
     type: 'link',
     method: 'context_menu',
-    webhook_name: webhookName
+    webhook_name: webhookName,
+    meta: {
+      source_page_image: ogImage || null,
+      source_page_site_name: ogSiteName || null,
+      source_page_url: window.location.href,
+      source_page_title: document.title,
+      link_text: linkText || null,
+      favicon: document.querySelector('link[rel*="icon"]')?.getAttribute('href') || null
+    }
   };
 
   helpers.sendToWebhook(webhookUrl, webhookName, data, 'link');
